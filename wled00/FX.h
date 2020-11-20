@@ -107,7 +107,7 @@
 #define IS_REVERSE      ((SEGMENT.options & REVERSE     ) == REVERSE     )
 #define IS_SELECTED     ((SEGMENT.options & SELECTED    ) == SELECTED    )
 
-#define MODE_COUNT  114
+#define MODE_COUNT  121
 
 #define FX_MODE_STATIC                   0
 #define FX_MODE_BLINK                    1
@@ -223,6 +223,13 @@
 #define FX_MODE_CHUNCHUN               111
 #define FX_MODE_DANCING_SHADOWS        112
 #define FX_MODE_WASHING_MACHINE        113
+#define FX_MODE_FADING_RETRO           114
+#define FX_MODE_TEST                   115
+#define FX_MODE_RAINBOW_LOOP           116
+#define FX_MODE_RANDOM_BURST           117
+#define FX_MODE_RGB_PROPELLER          118
+#define FX_MODE_RANDOM_MARCH           119
+#define FX_MODE_MATRIX                 120
 
 class WS2812FX {
   typedef uint16_t (WS2812FX::*mode_ptr)(void);
@@ -428,6 +435,13 @@ class WS2812FX {
       _mode[FX_MODE_CHUNCHUN]                = &WS2812FX::mode_chunchun;
       _mode[FX_MODE_DANCING_SHADOWS]         = &WS2812FX::mode_dancing_shadows;
       _mode[FX_MODE_WASHING_MACHINE]         = &WS2812FX::mode_washing_machine;
+      _mode[FX_MODE_FADING_RETRO]            = &WS2812FX::mode_fading_retro;
+      _mode[FX_MODE_TEST]                    = &WS2812FX::mode_test;
+      _mode[FX_MODE_RAINBOW_LOOP]            = &WS2812FX::mode_rainbow_loop;
+      _mode[FX_MODE_RANDOM_BURST]            = &WS2812FX::mode_random_burst;
+      _mode[FX_MODE_RGB_PROPELLER]           = &WS2812FX::mode_rgb_propeller;
+      _mode[FX_MODE_RANDOM_MARCH]            = &WS2812FX::mode_random_march;
+      _mode[FX_MODE_MATRIX]                  = &WS2812FX::mode_matrix;
 
       _brightness = DEFAULT_BRIGHTNESS;
       currentPalette = CRGBPalette16(CRGB::Black);
@@ -631,7 +645,14 @@ class WS2812FX {
       mode_flow(void),
       mode_chunchun(void),
       mode_dancing_shadows(void),
-      mode_washing_machine(void);
+      mode_washing_machine(void),
+      mode_fading_retro(void),
+      mode_test(void),
+      mode_rainbow_loop(void),
+      mode_random_burst(void),
+      mode_rgb_propeller(void),
+      mode_random_march(void),
+      mode_matrix(void);
 
   private:
     NeoPixelWrapper *bus;
@@ -678,7 +699,8 @@ class WS2812FX {
       tricolor_chase(uint32_t, uint32_t),
       twinklefox_base(bool),
       spots_base(uint16_t),
-      phased_base(uint8_t);
+      phased_base(uint8_t),
+      fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration);
 
     CRGB twinklefox_one_twinkle(uint32_t ms, uint8_t salt, bool cat);
     CRGB pacifica_one_layer(uint16_t i, CRGBPalette16& p, uint16_t cistart, uint16_t wavescale, uint8_t bri, uint16_t ioff);
@@ -719,7 +741,8 @@ const char JSON_mode_names[] PROGMEM = R"=====([
 "Twinklefox","Twinklecat","Halloween Eyes","Solid Pattern","Solid Pattern Tri","Spots","Spots Fade","Glitter","Candle","Fireworks Starburst",
 "Fireworks 1D","Bouncing Balls","Sinelon","Sinelon Dual","Sinelon Rainbow","Popcorn","Drip","Plasma","Percent","Ripple Rainbow",
 "Heartbeat","Pacifica","Candle Multi", "Solid Glitter","Sunrise","Phased","Twinkleup","Noise Pal", "Sine","Phased Noise",
-"Flow","Chunchun","Dancing Shadows","Washing Machine"
+"Flow","Chunchun","Dancing Shadows","Washing Machine","_Fade In-Out","_Test","_Rainbow loop","_Random Burst","_Rgb Propeller","_Random March",
+"_Matrix"
 ])=====";
 
 

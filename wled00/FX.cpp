@@ -3725,3 +3725,371 @@ uint16_t WS2812FX::mode_washing_machine(void) {
 
   return FRAMETIME;
 }
+
+uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration) {
+  int16_t brightness = SEGENV.aux1;
+  uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
+  uint32 color[4];
+  uint8_t colorIdx = 0;
+  uint8_t r,g,b;
+
+  if (SEGENV.call == 0) {
+    SEGENV.aux1 = 0; // set initial brightness
+    SEGENV.step = 0; // set initial state
+    fill(BLACK);
+    return stepDuration;
+  }
+
+  switch (SEGENV.step)
+  {
+  case 0: //  fade up even colors
+    color[0] = my_palette[0];
+    color[1] = BLACK;
+    color[2] = my_palette[2];
+    color[3] = BLACK;
+    brightness = (brightness + fadeAmount);
+    break;
+
+  case 1: // fade down even colors
+    color[0] = my_palette[0];
+    color[1] = BLACK;
+    color[2] = my_palette[2];
+    color[3] = BLACK;
+    brightness = (brightness - fadeAmount);
+    break;
+
+  case 2: // hold off for one cycle
+    color[0] = BLACK;
+    color[1] = BLACK;
+    color[2] = BLACK;
+    color[3] = BLACK;
+    brightness = 0;
+    break;
+
+  case 3: // fade up odd colors
+    color[0] = BLACK;
+    color[1] = my_palette[1];
+    color[2] = BLACK;
+    color[3] = my_palette[3];
+    brightness = (brightness + fadeAmount);
+    break;
+
+   case 4: // fade down odd colors
+    color[0] = BLACK;
+    color[1] = my_palette[1];
+    color[2] = BLACK;
+    color[3] = my_palette[3];
+    brightness = (brightness - fadeAmount);
+    break;
+
+  case 5: // hold off for one cycle
+    color[0] = BLACK;
+    color[1] = BLACK;
+    color[2] = BLACK;
+    color[3] = BLACK;
+    brightness = 0;
+    break;
+
+  default:
+    break;
+  }
+
+ /* Serial.print("step: ");
+  Serial.print(SEGENV.step);
+  Serial.print("  aux1: ");
+  Serial.print(SEGENV.aux1);
+  Serial.print("  fadeAmount: ");
+  Serial.print(fadeAmount);
+  Serial.print("  brightness: ");
+  Serial.println(brightness);*/
+
+  //setPixelColor(SEGLEN-1,BLACK);
+
+  if(brightness <=0 || brightness >= 255)  {
+    SEGENV.step = (SEGENV.step + 1) % 6;
+    brightness = ((brightness <= 0) ? 0 : ((brightness > 255) ? 255 : brightness));
+    //setPixelColor(SEGLEN-1,0x00ff00ff);
+  }
+
+  SEGENV.aux1 = brightness;
+  for (uint8_t col=0; col<4; col++) {
+    // apply fading
+    //w = (color >> 24) & 0xff;
+    r = (color[col] >> 16) & 0xff;
+    g = (color[col] >>  8) & 0xff;
+    b =  color[col]        & 0xff;
+    nscale8x3(r, g, b, brightness);
+    color[col] = r << 16 | g << 8 | b;
+  }
+
+  for (int i=0; i<SEGLEN; i++) {
+    setPixelColor(i, color[colorIdx]);
+    colorIdx = (colorIdx + 1) & 3; // modulo 4 
+    /*if (i == SEGENV.step) {
+      setPixelColor(i,0x00ff00ff);
+    }*/
+  }
+
+  return stepDuration;
+}
+
+uint16_t WS2812FX::mode_fading_retro(void) {
+  //uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
+  int16_t fadeAmount;
+  uint16 stepDuration, ret;
+
+  fadeAmount = 256 - SEGMENT.intensity;
+  stepDuration = FRAMETIME * 2 + (255 - SEGMENT.speed);
+  
+  ret = fade_in_out_alternate(fadeAmount, stepDuration);
+  return ret;
+}
+
+#if 0
+  uint16_t r1, g1, b1, r2, g2, b2;
+  int16_t fadeAmount = 256 - SEGMENT.intensity;
+  int16_t brightness = SEGENV.aux1;
+  uint8_t my_palette[4][3] = {{255,0,0},{0,255,0},{255,160,0},{0,0,255}};
+
+//Serial.print("bri ");
+//Serial.println(brightness);
+  if (SEGENV.call == 0) {
+    brightness = 0;
+    SEGENV.aux0 = 0; // raising 
+  }
+  else {
+    if(SEGENV.aux0) { //falling 
+      brightness = (brightness - fadeAmount);
+      //Serial.println("falling");
+    }
+    else { //raising 
+      brightness = (brightness + fadeAmount);
+     // Serial.println("raising");
+    }
+    if(brightness <=0 || brightness >= 255)  {
+     // Serial.print("change ");
+      //Serial.println(brightness);
+      SEGENV.aux0 = (SEGENV.aux0 + 1) % 2;
+      brightness = ((brightness < 0) ? 0 : ((brightness > 255) ? 255 : brightness)); 
+    }
+  }
+  SEGENV.aux1 = brightness;
+/*Serial.print("newBri ");
+Serial.println(brightness);
+
+Serial.print("red ");
+Serial.print(my_palette[SEGENV.step][0]);
+Serial.print(" ");
+Serial.print(my_palette[SEGENV.step][0] * 255);
+Serial.print("");*/
+  r1 = my_palette[SEGENV.step][0] * brightness / 255;
+  g1 = my_palette[SEGENV.step][1] * brightness / 255;
+  b1 = my_palette[SEGENV.step][2] * brightness / 255;
+  r2 = my_palette[SEGENV.step + 2][0] * brightness / 255;
+  g2 = my_palette[SEGENV.step + 2][1] * brightness / 255;
+  b2 = my_palette[SEGENV.step + 2][2] * brightness / 255;
+  //Serial.println(r1);
+  //even led 
+  for (int i=1; i<SEGLEN; i+=2) {
+    setPixelColor(i,BLACK);
+  }
+  //odd led
+  for (int i=0; i<SEGLEN; i+=2) {
+    setPixelColor(i, r1, g1, b1, 0);
+  }
+
+  return ((SEGMENT.speed < FRAMETIME) ? FRAMETIME : SEGMENT.speed);
+}
+#endif
+/*uint16_t WS2812FX::mode_fading_luca(void) {
+  uint16_t changePaletteMs = 1000 + SEGMENT.speed *10; //between 4 - 6.5sec
+  uint8_t bri = 255;
+  float mappedRate = float(SEGMENT.intensity) +1.1;
+  uint8_t r, g, b;
+  uint8_t my_palette[4][3] = {{255,0,0},{0,0,255},{0,255,0},{255,0,255}};
+  uint32_t oddEvenColor[2];
+  uint8_t oddEvenIdx;
+
+  if (bri > 255)
+  {
+    bri = 255;
+  }
+   if (!SEGENV.allocateData(sizeof(uint8_t) * 3)) return mode_static(); //allocation failed
+  
+  uint8_t* oldColor = reinterpret_cast<uint8_t*>(SEGENV.data);
+
+  if (SEGENV.call == 0)
+  {
+    b = 0;
+    r = 0;
+    g = 0;
+    SEGENV.step = millis();
+  }
+  else
+  {
+    r = oldColor[0];
+    g = oldColor[1];
+    b = oldColor[2];
+    if (millis() - SEGENV.step > changePaletteMs)
+    {
+      SEGENV.step = millis();
+      b = my_palette[SEGENV.aux0][2];
+      r = my_palette[SEGENV.aux0][0];
+      g = my_palette[SEGENV.aux0][1];
+      SEGENV.aux0 = (SEGENV.aux0 + 1) % 4;
+    }
+  }
+  
+  oldColor[0] = r;
+  oldColor[1] = g;
+  oldColor[2] = b;
+  uint32_t numPixel;
+  if (SEGENV.call < SEGLEN)
+  {
+    numPixel = SEGENV.call;
+    setPixelColor(SEGENV.call, r*bri/255, g *bri/255, b*bri/255, 0);
+  }
+  else
+  {
+    numPixel = SEGLEN;
+    if (SEGENV.call % 2 == 0)
+    {
+      oddEvenColor[0] = 0x00000000;
+      oddEvenColor[1] = ((r*bri/255) << 16) | ((g*bri/255) <<  8) | (b*bri/255);
+    }
+    else
+    {
+      oddEvenColor[1] = 0x00000000;
+      oddEvenColor[0] = ((r*bri/255) << 16) | ((g*bri/255) <<  8) | (b*bri/255);
+    }
+    oddEvenIdx = SEGENV.call % 2;
+    for (int i=0; i<numPixel; i++) {
+      setPixelColor(i, r*bri/255, g*bri/255 , b*bri/255, 0);
+    }
+  }
+  return FRAMETIME;
+}*/
+
+uint16_t WS2812FX::mode_test(void) {
+  uint8_t colorIdx = ((SEGMENT.speed < 85) ? 0 : ((SEGMENT.speed < 170) ? 1 : 2));
+
+  uint8_t rgb_palette[3][3] = {{255,0,0},{0,255,0},{0,0,255}};
+
+  for (int i=0; i<SEGLEN; i++) {
+    if (i !=0 && i % 10 == 0) {
+      colorIdx = (colorIdx + 1) % 3;
+    }
+    setPixelColor(i, rgb_palette[colorIdx][0], rgb_palette[colorIdx][1], rgb_palette[colorIdx][2], 0);
+  }
+
+  return FRAMETIME;
+}
+
+uint16_t WS2812FX::mode_rainbow_loop(void) {
+  uint16_t index = SEGENV.aux0;
+  uint8_t thishue = SEGENV.aux1;
+  uint8_t thisStep = 10;
+  uint8_t thissat = 255;
+  uint8_t thisbright = 128 + SEGMENT.intensity / 2;
+
+  thishue = thishue + thisStep;
+  if (thishue > 255) {
+    thishue = 0;
+  }
+
+  CRGB color = CHSV(thishue, thissat, thisbright);
+  setPixelColor(index, color.r, color.g, color.b, 0);
+
+  index++;
+  if(index >= SEGLEN) {
+    index = 0;
+  }
+  SEGENV.aux0 = index;
+  SEGENV.aux1 = thishue;
+  return (FRAMETIME + SEGMENT.speed);
+}
+
+uint16_t WS2812FX::mode_random_burst(void) {
+  uint16_t rndidx = random16(0, SEGLEN);
+  uint8_t rndhue = random8(0, 255);
+  uint8_t thissat = 255;
+  uint8_t thisbright = 128 + SEGMENT.intensity / 2;
+  uint8_t rndbright = random8(10, thisbright);
+  
+  CRGB color = CHSV(rndhue, thissat, rndbright);
+  setPixelColor(rndidx, color.r, color.g, color.b, 0);
+
+  //delay(random8(0, thisdelay));
+  return (FRAMETIME + SEGMENT.speed);
+}
+
+uint16_t WS2812FX::mode_rgb_propeller(void) 
+{
+  uint16_t thishue = 0;
+  uint8_t thissat = 255;
+  uint8_t thisbright = 128 + SEGMENT.intensity / 2;
+  CRGB color;
+  
+  SEGENV.step++;
+  
+  uint8_t ghue = (thishue + 80) % 255;
+  uint8_t bhue = (thishue + 160) % 255;
+  uint8_t N3  = int(SEGLEN/3);
+  uint8_t N6  = int(SEGLEN/6);  
+  uint8_t N12 = int(SEGLEN/12);
+
+  for(int i = 0; i < N3; i++ ) {
+    int j0 = (SEGENV.step + i + SEGLEN - N12) % SEGLEN;
+    int j1 = (j0+N3) % SEGLEN;
+    int j2 = (j1+N3) % SEGLEN;
+    //color = CHSV(thishue, thissat, thisbright);
+    color = SEGCOLOR(0);
+    setPixelColor(j0, color.r, color.g, color.b, 0);
+    //color = CHSV(ghue, thissat, thisbright);
+    color = SEGCOLOR(1);
+    setPixelColor(j1, color.r, color.g, color.b, 0);
+    //color = CHSV(ghue, thissat, thisbright);
+    color = SEGCOLOR(2);
+    setPixelColor(j2, color.r, color.g, color.b, 0);  
+  }
+  return (FRAMETIME + SEGMENT.speed);
+}
+
+uint16_t WS2812FX::mode_random_march() 
+{
+  uint8_t thissat = 255;
+  uint8_t thisbright = 128 + SEGMENT.intensity / 2;
+
+  uint32_t color;
+  for(int i = 0; i < SEGLEN-1; i++ ) {
+    color = getPixelColor(i+1);
+    setPixelColor(i, color);
+  }
+  CRGB newColor = CHSV(random8(), thissat, thisbright);
+  setPixelColor(SEGLEN-1, newColor.r, newColor.g, newColor.b, 0);
+
+  return (FRAMETIME + SEGMENT.speed);
+}
+
+uint16_t WS2812FX::mode_matrix() 
+{
+  uint8_t thissat = 255;
+  uint8_t thisbright = 128 + SEGMENT.intensity / 2;
+  int rand = random8(0, 100);
+  CRGB color;
+
+  if (rand > 90) {
+    color = CHSV(random8(), thissat, thisbright);
+  }
+  else {
+    color = CHSV(0, thissat, 0);
+  }
+  setPixelColor(0, color.r, color.g, color.b, 0);
+
+  for(int i = SEGLEN-1; i > 0; i--) 
+  {
+    color = getPixelColor(i-1);
+    setPixelColor(i, color.r, color.g, color.b, 0);
+  }
+  return (FRAMETIME + SEGMENT.speed);
+}

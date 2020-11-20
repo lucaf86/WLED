@@ -49,9 +49,9 @@
 
 // What pins to use:
 #define STRIP1_PIN 2 // D4 - UART1 - HW accelerated - manually specify all pins here.  2  is default LEDPIN for esp32dev boards.
-#define STRIP2_PIN 3 // RX - UART0 - HW accelerated
+#define STRIP2_PIN 14 // D5
 #define STRIP3_PIN 5 // D1 - genral purpose gpio - SW bitBanging 
-#define STRIP4_PIN 14
+#define STRIP4_PIN 3 // RX - UART0 - HW accelerated 
 #define STRIP5_PIN 27
 #define STRIP6_PIN 26
 #define STRIP7_PIN 25
@@ -61,7 +61,7 @@
 #define STRIP1_LEDCOUNT 99
 #define STRIP2_LEDCOUNT 99
 #define STRIP3_LEDCOUNT 100
-#define STRIP4_LEDCOUNT 18
+#define STRIP4_LEDCOUNT 99
 #define STRIP5_LEDCOUNT 18
 #define STRIP6_LEDCOUNT 18
 #define STRIP7_LEDCOUNT 18
@@ -69,9 +69,9 @@
 
 // What pixelmethod to use on each strip?
 #define STRIP1_PIXELMETHOD NeoEsp8266Uart1Ws2813Method    // the board specific PIXELMETHOD variable is being ignored now, so make sure it's set here!
-#define STRIP2_PIXELMETHOD NeoEsp8266Dma800KbpsMethod    // define what method you want to use to drive each strip. For esp32 RMT 0-7 works best.
+#define STRIP2_PIXELMETHOD NeoEsp8266BitBang800KbpsMethod    // define what method you want to use to drive each strip. For esp32 RMT 0-7 works best.
 #define STRIP3_PIXELMETHOD NeoEsp8266BitBang800KbpsMethod
-#define STRIP4_PIXELMETHOD NeoEsp32Rmt3Ws2812xMethod
+#define STRIP4_PIXELMETHOD NeoEsp8266Dma800KbpsMethod
 #define STRIP5_PIXELMETHOD NeoEsp32Rmt4Ws2812xMethod
 #define STRIP6_PIXELMETHOD NeoEsp32Rmt5Ws2812xMethod
 #define STRIP7_PIXELMETHOD NeoEsp32Rmt6Ws2812xMethod
