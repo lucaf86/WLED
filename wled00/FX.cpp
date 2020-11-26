@@ -2023,7 +2023,7 @@ uint16_t WS2812FX::mode_lake() {
   {
     int index = cos8((i*15)+ wave1)/2 + cubicwave8((i*23)+ wave2)/2;           
     uint8_t lum = (index > wave3) ? index - wave3 : 0;
-    fastled_col = ColorFromPalette(currentPalette, map(index,0,255,0,240), lum, LINEARBLEND);
+    fastled_col = ColorFromPalette(currentPalette, map(index,0,255,0,240), lum, NOBLEND);
     setPixelColor(i, fastled_col.red, fastled_col.green, fastled_col.blue);
   }
   return FRAMETIME;
@@ -3730,8 +3730,8 @@ uint16_t WS2812FX::mode_washing_machine(void) {
 
 uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration) {
   int16_t brightness = SEGENV.aux1;
-  uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
-  uint32 color[4];
+  //uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
+  uint32 color[2];
   uint8_t colorIdx = 0;
   uint8_t r,g,b;
 
@@ -3744,52 +3744,17 @@ uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration
 
   switch (SEGENV.step)
   {
-  case 0: //  fade up even colors
-    color[0] = my_palette[0];
-    color[1] = BLACK;
-    color[2] = my_palette[2];
-    color[3] = BLACK;
+  case 0: //  fade up
     brightness = (brightness + fadeAmount);
     break;
 
-  case 1: // fade down even colors
-    color[0] = my_palette[0];
-    color[1] = BLACK;
-    color[2] = my_palette[2];
-    color[3] = BLACK;
+  case 1: // fade down
     brightness = (brightness - fadeAmount);
     break;
 
   case 2: // hold off for one cycle
-    color[0] = BLACK;
-    color[1] = BLACK;
-    color[2] = BLACK;
-    color[3] = BLACK;
     brightness = 0;
-    break;
-
-  case 3: // fade up odd colors
-    color[0] = BLACK;
-    color[1] = my_palette[1];
-    color[2] = BLACK;
-    color[3] = my_palette[3];
-    brightness = (brightness + fadeAmount);
-    break;
-
-   case 4: // fade down odd colors
-    color[0] = BLACK;
-    color[1] = my_palette[1];
-    color[2] = BLACK;
-    color[3] = my_palette[3];
-    brightness = (brightness - fadeAmount);
-    break;
-
-  case 5: // hold off for one cycle
-    color[0] = BLACK;
-    color[1] = BLACK;
-    color[2] = BLACK;
-    color[3] = BLACK;
-    brightness = 0;
+    SEGENV.aux0 = ( SEGENV.aux0 + 1 ) % 2;
     break;
 
   default:
@@ -3808,13 +3773,34 @@ uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration
   //setPixelColor(SEGLEN-1,BLACK);
 
   if(brightness <=0 || brightness >= 255)  {
-    SEGENV.step = (SEGENV.step + 1) % 6;
+    SEGENV.step = (SEGENV.step + 1) % 3;
     brightness = ((brightness <= 0) ? 0 : ((brightness > 255) ? 255 : brightness));
     //setPixelColor(SEGLEN-1,0x00ff00ff);
   }
 
   SEGENV.aux1 = brightness;
-  for (uint8_t col=0; col<4; col++) {
+
+  if (SEGENV.step == 2)
+  {
+    color[0] = BLACK;
+    color[1] = BLACK;
+  }
+  else
+  {
+    if (SEGENV.aux0)
+    {
+      color[0] = SEGCOLOR(0);
+      //color[1] = BLACK;
+    }
+    else
+    {
+      color[0] = SEGCOLOR(1);
+      //color[0] = BLACK;      
+    }
+    
+  }
+  
+  for (uint8_t col=0; col<1; col++) {
     // apply fading
     //w = (color >> 24) & 0xff;
     r = (color[col] >> 16) & 0xff;
@@ -3825,8 +3811,8 @@ uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration
   }
 
   for (int i=0; i<SEGLEN; i++) {
-    setPixelColor(i, color[colorIdx]);
-    colorIdx = (colorIdx + 1) & 3; // modulo 4 
+    setPixelColor(i, color[0]);
+    //colorIdx = (colorIdx + 1) & 1; // modulo 2 
     /*if (i == SEGENV.step) {
       setPixelColor(i,0x00ff00ff);
     }*/
