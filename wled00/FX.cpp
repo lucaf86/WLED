@@ -3731,7 +3731,7 @@ uint16_t WS2812FX::mode_washing_machine(void) {
 uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration) {
   int16_t brightness = SEGENV.aux1;
   //uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
-  uint32 color[2];
+  uint32 color;
   uint8_t colorIdx = 0;
   uint8_t r,g,b;
 
@@ -3761,57 +3761,40 @@ uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration
     break;
   }
 
- /* Serial.print("step: ");
-  Serial.print(SEGENV.step);
-  Serial.print("  aux1: ");
-  Serial.print(SEGENV.aux1);
-  Serial.print("  fadeAmount: ");
-  Serial.print(fadeAmount);
-  Serial.print("  brightness: ");
-  Serial.println(brightness);*/
-
-  //setPixelColor(SEGLEN-1,BLACK);
-
   if(brightness <=0 || brightness >= 255)  {
     SEGENV.step = (SEGENV.step + 1) % 3;
     brightness = ((brightness <= 0) ? 0 : ((brightness > 255) ? 255 : brightness));
-    //setPixelColor(SEGLEN-1,0x00ff00ff);
   }
 
   SEGENV.aux1 = brightness;
 
   if (SEGENV.step == 2)
   {
-    color[0] = BLACK;
-    color[1] = BLACK;
+    color = BLACK;
   }
   else
   {
     if (SEGENV.aux0)
     {
-      color[0] = SEGCOLOR(0);
-      //color[1] = BLACK;
+      color = SEGCOLOR(0);
     }
     else
     {
-      color[0] = SEGCOLOR(1);
-      //color[0] = BLACK;      
+      color = SEGCOLOR(1);  
     }
     
   }
   
-  for (uint8_t col=0; col<1; col++) {
-    // apply fading
-    //w = (color >> 24) & 0xff;
-    r = (color[col] >> 16) & 0xff;
-    g = (color[col] >>  8) & 0xff;
-    b =  color[col]        & 0xff;
-    nscale8x3(r, g, b, brightness);
-    color[col] = r << 16 | g << 8 | b;
-  }
+  // apply fading
+  //w = (color >> 24) & 0xff;
+  r = (color >> 16) & 0xff;
+  g = (color >>  8) & 0xff;
+  b =  color        & 0xff;
+  nscale8x3(r, g, b, brightness);
+  color = r << 16 | g << 8 | b;
 
   for (int i=0; i<SEGLEN; i++) {
-    setPixelColor(i, color[0]);
+    setPixelColor(i, color);
     //colorIdx = (colorIdx + 1) & 1; // modulo 2 
     /*if (i == SEGENV.step) {
       setPixelColor(i,0x00ff00ff);
