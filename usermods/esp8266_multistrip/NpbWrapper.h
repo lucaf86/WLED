@@ -136,37 +136,37 @@ public:
   void Show()
   {
     byte b;
-    switch (_type)
-    {
-      case NeoPixelType_Grb:
-      {
+  //  switch (_type)
+  //  {
+  //    case NeoPixelType_Grb:
+  //    {
         for (uint8_t idx = 0; idx < numStrips; idx++)
         {
           switch (idx)
           {
-            case 0: pGrb0->Show(); break;
-            case 1: pGrb1->Show(); break;
-            case 2: pGrb2->Show(); break;
-            case 3: pGrb3->Show(); break;
+            case 0: pGrb0->Show(); ESP8266_MULTISTRIP_YIELD; break;
+            case 1: pGrb1->Show(); ESP8266_MULTISTRIP_YIELD; break;
+            case 2: pGrb2->Show(); ESP8266_MULTISTRIP_YIELD; break;
+            case 3: pGrb3->Show(); ESP8266_MULTISTRIP_YIELD; break;
           }
         }
-        break;
-      }
-      case NeoPixelType_Grbw:
-      {
-        for (uint8_t idx = 0; idx < numStrips; idx++)
-        {
-          switch (idx)
-          {
-            case 0: pGrbw0->Show(); break;
-            case 1: pGrbw1->Show(); break;
-            case 2: pGrbw2->Show(); break;
-            case 3: pGrbw3->Show(); break;
-          }
-        }
-        break;
-      }
-    }
+  //      break;
+  //    }
+  //    case NeoPixelType_Grbw:
+  //    {
+  //      for (uint8_t idx = 0; idx < numStrips; idx++)
+  //      {
+  //        switch (idx)
+  //        {
+  //          case 0: pGrbw0->Show(); break;
+  //          case 1: pGrbw1->Show(); break;
+  //          case 2: pGrbw2->Show(); break;
+  //          case 3: pGrbw3->Show(); break;
+  //        }
+  //      }
+  //      break;
+  //    }
+  //  }
   }
 
   void SetPixelColorRaw(uint16_t indexPixel, RgbwColor c)

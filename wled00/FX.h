@@ -55,7 +55,9 @@
 #endif
 
 /* Not used in all effects yet */
+#ifndef WLED_FPS
 #define WLED_FPS         42
+#endif
 #define FRAMETIME        (1000/WLED_FPS)
 
 /* each segment uses 52 bytes of SRAM memory, so if you're application fails because of

@@ -107,6 +107,9 @@ void WiFiEvent(WiFiEvent_t event)
 
 void WLED::loop()
 {
+#if defined ESP8266_MULTISTRIP_YIELD
+  ESP.wdtFeed();
+#endif
   handleIR();        // 2nd call to function needed for ESP32 to return valid results -- should be good for ESP8266, too
   handleConnection();
   handleSerial();
