@@ -6,12 +6,13 @@
 
 bool applyPreset(byte index)
 {
-  if (fileDoc) {
-    errorFlag = readObjectFromFileUsingId("/presets.json", index, fileDoc) ? ERR_NONE : ERR_FS_PLOAD;
-    JsonObject fdo = fileDoc->as<JsonObject>();
+  JsonDocument* doc = fileDoc;
+  if (doc) {
+    errorFlag = readObjectFromFileUsingId("/presets.json", index, doc) ? ERR_NONE : ERR_FS_PLOAD;
+    JsonObject fdo = doc->as<JsonObject>();
     if (fdo["ps"] == index) fdo.remove("ps"); //remove load request for same presets to prevent recursive crash
     #ifdef WLED_DEBUG_FS
-      serializeJson(*fileDoc, Serial);
+      serializeJson(*doc, Serial);
     #endif
     deserializeState(fdo);
   } else {
