@@ -302,8 +302,10 @@ void WS2812FX::show(void) {
   // some buses send asynchronously and this method will return before
   // all of the data has been sent.
   // See https://github.com/Makuna/NeoPixelBus/wiki/ESP32-NeoMethods#neoesp32rmt-methods
-  bus->Show();
-  _lastShow = millis();
+  if (!isUpdating()) {
+    bus->Show();
+    _lastShow = millis();
+  }
 }
 
 /**

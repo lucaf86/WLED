@@ -522,7 +522,7 @@ class WS2812FX {
       segmentsAreIdentical(Segment* a, Segment* b),
       setEffectConfig(uint8_t m, uint8_t s, uint8_t i, uint8_t p),
       // return true if the strip is being sent pixel updates
-      isUpdating(void);
+      isUpdating();
 
     uint8_t
       mainSegment = 0,

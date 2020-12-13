@@ -55,6 +55,7 @@ const uint8_t dataPins[numStrips] = {DATA_PINS}; // change these pins based on y
 // For the other use bitBang
 // Convenience #defines for creating NeoPixelBrightnessBus 
 #define NeoPixelBrightnessBusGrb0 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266Uart1Ws2813Method>
+//#define NeoPixelBrightnessBusGrb0 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266BitBang800KbpsMethod>
 #define NeoPixelBrightnessBusGrb1 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266BitBang800KbpsMethod>
 #define NeoPixelBrightnessBusGrb2 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266BitBang800KbpsMethod>
 #define NeoPixelBrightnessBusGrb3 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266Dma800KbpsMethod>
@@ -135,7 +136,6 @@ public:
 
   void Show()
   {
-    byte b;
   //  switch (_type)
   //  {
   //    case NeoPixelType_Grb:
@@ -167,6 +167,49 @@ public:
   //      break;
   //    }
   //  }
+  }
+
+  /** 
+   * This will return true if enough time has passed since the last time Show() was called. 
+   * This also means that calling Show() will not cause any undue waiting. If the method for 
+   * the defined bus is hardware that sends asynchronously, then call CanShow() will let 
+   * you know if it has finished sending the data from the last Show().
+   */
+  bool CanShow()
+  {
+    bool canShow = true;
+    //switch (_type)
+    //{
+    //  case NeoPixelType_Grb:
+    //  {
+        for (uint8_t idx = 0; idx < numStrips; idx++)
+        {
+          switch (idx)
+          {
+            case 0: canShow &= pGrb0->CanShow(); break;
+            case 1: canShow &= pGrb1->CanShow(); break;
+            case 2: canShow &= pGrb2->CanShow(); break;
+            case 3: canShow &= pGrb3->CanShow(); break;
+          }
+        }
+    //    break;
+    //  }
+ /*     case NeoPixelType_Grbw:
+      {
+        for (uint8_t idx = 0; idx < numStrips; idx++)
+        {
+          switch (idx)
+          {
+            case 0: canShow &= pGrbw0->CanShow(); break;
+            case 1: canShow &= pGrbw1->CanShow(); break;
+            case 2: canShow &= pGrbw2->CanShow(); break;
+            case 3: canShow &= pGrbw3->CanShow(); break;
+          }
+        }
+        break;
+      }*/
+    //}
+    return canShow;
   }
 
   void SetPixelColorRaw(uint16_t indexPixel, RgbwColor c)
