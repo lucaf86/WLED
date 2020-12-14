@@ -60,6 +60,7 @@
 
 #include "EspalexaDevice.h"
 
+#define DEVICE_UNIQUE_ID_LENGTH 12
 
 class Espalexa {
 private:
@@ -111,18 +112,51 @@ private:
       case EspalexaDeviceType::dimmable:      return "LWB010";
       case EspalexaDeviceType::whitespectrum: return "LWT010";
       case EspalexaDeviceType::color:         return "LST001";
-      case EspalexaDeviceType::extendedcolor: return "LCT015";
+      case EspalexaDeviceType::extendedcolor: return "LCT015"; // "LCT007";
     }
     return "";
   }
   
-  //Workaround functions courtesy of Sonoff-Tasmota
-  uint32_t encodeLightId(uint8_t idx)
+  String byte2hex(uint8_t zahl)
   {
-    uint8_t mac[6];
-    WiFi.macAddress(mac);
-    uint32_t id = (mac[3] << 20) | (mac[4] << 12) | (mac[5] << 4) | (idx & 0xF);
-    return id;
+    String hstring = String(zahl, HEX);
+    if (zahl < 16)
+    {
+      hstring = "0" + hstring;
+    }
+    return hstring;
+  }
+
+  String makeMD5(String text)
+  {
+    unsigned char bbuf[16];
+    String hash = "";
+    MD5Builder md5;
+    md5.begin();
+    md5.add(text);
+    md5.calculate();
+  
+    md5.getBytes(bbuf);
+    for (uint8_t i = 0; i < 16; i++)
+    {
+      hash += byte2hex(bbuf[i]);
+    }
+    return hash;
+  }
+
+  String encodeLightId(uint8_t idx)
+  {
+    String mac = WiFi.macAddress();
+    mac.replace(":","");
+    mac.toLowerCase();
+
+    //Unique id must be 12 character len.
+    //use the MAC, add the device name, then use a truncated MD5 hash as unique id
+    EspalexaDevice* dev = devices[idx-1];
+    mac.concat(dev->getName());
+    String hash = makeMD5(mac).substring(0,DEVICE_UNIQUE_ID_LENGTH/*-1*/);
+    //hash.concat(idx);
+    return hash;
   }
 
   uint32_t decodeLightId(uint32_t id) {
@@ -161,10 +195,10 @@ private:
     
     sprintf_P(buf, PSTR("{\"state\":{\"on\":%s,\"bri\":%u%s%s,\"alert\":\"none%s\",\"mode\":\"homeautomation\",\"reachable\":true},"
                    "\"type\":\"%s\",\"name\":\"%s\",\"modelid\":\"%s\",\"manufacturername\":\"Philips\",\"productname\":\"E%u"
-                   "\",\"uniqueid\":\"%u\",\"swversion\":\"espalexa-2.4.6\"}")
+                   "\",\"uniqueid\":\"%s\",\"swversion\":\"espalexa-2.4.6\"}")
                    
     , (dev->getValue())?"true":"false", dev->getLastValue()-1, buf_col, buf_ct, buf_cm, typeString(dev->getType()),
-    dev->getName().c_str(), modelidString(dev->getType()), static_cast<uint8_t>(dev->getType()), encodeLightId(deviceId+1));
+    dev->getName().c_str(), modelidString(dev->getType()), static_cast<uint8_t>(dev->getType()), encodeLightId(deviceId+1).c_str());
   }
   
   //Espalexa status page /espalexa
@@ -222,7 +256,7 @@ private:
         "<URLBase>http://%s:80/</URLBase>"
         "<device>"
           "<deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>"
-          "<friendlyName>Espalexa (%s)</friendlyName>"
+          "<friendlyName>Philips hue (%s:80)</friendlyName>"
           "<manufacturer>Royal Philips Electronics</manufacturer>"
           "<manufacturerURL>http://www.philips.com</manufacturerURL>"
           "<modelDescription>Philips hue Personal Wireless Lighting</modelDescription>"
@@ -237,8 +271,8 @@ private:
           
     server->send(200, "text/xml", buf);
     
-    EA_DEBUG("Send setup.xml");
-    //EA_DEBUGLN(setup_xml);
+    EA_DEBUGLN("Send setup.xml");
+    EA_DEBUGLN(buf);
   }
   
   //init the server
@@ -290,7 +324,7 @@ private:
     sprintf(s, "%d.%d.%d.%d", localIP[0], localIP[1], localIP[2], localIP[3]);
 
     char buf[1024];
-    
+
     sprintf_P(buf,PSTR("HTTP/1.1 200 OK\r\n"
       "EXT:\r\n"
       "CACHE-CONTROL: max-age=100\r\n" // SSDP_INTERVAL
@@ -298,9 +332,14 @@ private:
       "SERVER: FreeRTOS/6.0.5, UPnP/1.0, IpBridge/1.17.0\r\n" // _modelName, _modelNumber
       "hue-bridgeid: %s\r\n"
       "ST: urn:schemas-upnp-org:device:basic:1\r\n"  // _deviceType
-      "USN: uuid:2f402f80-da50-11e1-9b23-%s::ssdp:all\r\n" // _uuid::_deviceType
+      "USN: uuid:2f402f80-da50-11e1-9b23-%s::upnp:rootdevice\r\n" // _uuid::_deviceType
       "\r\n"),s,escapedMac.c_str(),escapedMac.c_str());
 
+    EA_DEBUG("UDP resp sent to "); 
+    EA_DEBUG(espalexaUdp.remoteIP().toString().c_str());
+    EA_DEBUG(" : "); 
+    EA_DEBUGLN(espalexaUdp.remotePort()); 
+    EA_DEBUGLN(buf);
     espalexaUdp.beginPacket(espalexaUdp.remoteIP(), espalexaUdp.remotePort());
     #ifdef ARDUINO_ARCH_ESP32
     espalexaUdp.write((uint8_t*)buf, strlen(buf));
@@ -373,7 +412,8 @@ public:
     String request = packetBuffer;
     if(request.indexOf("M-SEARCH") >= 0) {
       EA_DEBUGLN(request);
-      if(request.indexOf("upnp:rootdevice") > 0 || request.indexOf("asic:1") > 0 || request.indexOf("ssdp:all") > 0) {
+      if(request.indexOf("upnp:rootdevice") > 0 /*|| request.indexOf("asic:1") > 0 || request.indexOf("ssdp:all") > 0*/
+         || request.indexOf("device:basic:1") > 0 || request.indexOf("ssdp:discover") > 0) {
         EA_DEBUGLN("Responding search req...");
         respondToSearch();
       }
@@ -530,13 +570,15 @@ public:
         String jsonTemp = "{";
         for (int i = 0; i<currentDeviceCount; i++)
         {
-          jsonTemp += "\"" + String(encodeLightId(i+1)) + "\":";
+          //jsonTemp += "\"" + String(encodeLightId(i+1)) + "\":";
+          jsonTemp += "\"" + String(i+1) + "\":";
           char buf[512];
           deviceJsonString(i+1, buf);
           jsonTemp += buf;
           if (i < currentDeviceCount-1) jsonTemp += ",";
         }
         jsonTemp += "}";
+        EA_DEBUGLN(jsonTemp);
         server->send(200, "application/json", jsonTemp);
       } else //client wants one light (devId)
       {
@@ -548,6 +590,7 @@ public:
         } else {
           char buf[512];
           deviceJsonString(devId, buf);
+          EA_DEBUGLN(buf); 
           server->send(200, "application/json", buf);
         }
       }
