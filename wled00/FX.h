@@ -120,7 +120,7 @@
 #define IS_REVERSE      ((SEGMENT.options & REVERSE     ) == REVERSE     )
 #define IS_SELECTED     ((SEGMENT.options & SELECTED    ) == SELECTED    )
 
-#define MODE_COUNT  122
+#define MODE_COUNT  123
 
 #define FX_MODE_STATIC                   0
 #define FX_MODE_BLINK                    1
@@ -244,6 +244,7 @@
 #define FX_MODE_RGB_PROPELLER          119
 #define FX_MODE_RANDOM_MARCH           120
 #define FX_MODE_MATRIX                 121
+#define FX_MODE_BLENDS                 122
 
 class WS2812FX {
   typedef uint16_t (WS2812FX::*mode_ptr)(void);
@@ -479,6 +480,7 @@ class WS2812FX {
       _mode[FX_MODE_RGB_PROPELLER]           = &WS2812FX::mode_rgb_propeller;
       _mode[FX_MODE_RANDOM_MARCH]            = &WS2812FX::mode_random_march;
       _mode[FX_MODE_MATRIX]                  = &WS2812FX::mode_matrix;
+      _mode[FX_MODE_BLENDS]                  = &WS2812FX::mode_blends;
 
       _brightness = DEFAULT_BRIGHTNESS;
       currentPalette = CRGBPalette16(CRGB::Black);
@@ -695,7 +697,8 @@ class WS2812FX {
       mode_random_burst(void),
       mode_rgb_propeller(void),
       mode_random_march(void),
-      mode_matrix(void);
+      mode_matrix(void),
+      mode_blends(void);
 
   private:
     NeoPixelWrapper *bus;
@@ -785,7 +788,7 @@ const char JSON_mode_names[] PROGMEM = R"=====([
 "Fireworks 1D","Bouncing Balls","Sinelon","Sinelon Dual","Sinelon Rainbow","Popcorn","Drip","Plasma","Percent","Ripple Rainbow",
 "Heartbeat","Pacifica","Candle Multi", "Solid Glitter","Sunrise","Phased","Twinkleup","Noise Pal", "Sine","Phased Noise",
 "Flow","Chunchun","Dancing Shadows","Washing Machine","Candy Cane","_Fade In-Out","_Test","_Rainbow loop","_Random Burst",
-"_Rgb Propeller","_Random March","_Matrix"
+"_Rgb Propeller","_Random March","_Matrix","Blends"
 ])=====";
 
 
