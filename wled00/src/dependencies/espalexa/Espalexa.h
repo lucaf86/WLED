@@ -401,21 +401,28 @@ public:
     if (!packetSize) return; //no new udp packet
     
     EA_DEBUGLN("Got UDP!");
-    char packetBuffer[255]; //buffer to hold incoming udp packet
-    uint16_t len = espalexaUdp.read(packetBuffer, 254);
-    if (len > 0) {
-      packetBuffer[len] = 0;
-    }
-    espalexaUdp.flush();
-    if (!discoverable) return; //do not reply to M-SEARCH if not discoverable
+    //char packetBuffer[255]; //buffer to hold incoming udp packet
+    //uint16_t len = espalexaUdp.read(packetBuffer, 254);
+    if (packetSize > 0) {
+      unsigned char packetBuffer[packetSize+1]; //buffer to hold incoming udp packet
+      int len = espalexaUdp.read(packetBuffer, packetSize+1);
+      packetBuffer[packetSize] = 0;
     
-    String request = packetBuffer;
-    if(request.indexOf("M-SEARCH") >= 0) {
-      EA_DEBUGLN(request);
-      if(request.indexOf("upnp:rootdevice") > 0 /*|| request.indexOf("asic:1") > 0 || request.indexOf("ssdp:all") > 0*/
-         || request.indexOf("device:basic:1") > 0 || request.indexOf("ssdp:discover") > 0) {
-        EA_DEBUGLN("Responding search req...");
-        respondToSearch();
+      espalexaUdp.flush();
+      if (!discoverable) return; //do not reply to M-SEARCH if not discoverable
+    
+      String request = (const char *) packetBuffer;
+      if(request.indexOf("M-SEARCH") >= 0) {
+        EA_DEBUGLN(request);
+        if(request.indexOf("ssdp:discover") > 0 && 
+           (request.indexOf("upnp:rootdevice") > 0 || 
+            //request.indexOf("asic:1") > 0 ||
+            request.indexOf("ssdp:all") > 0 ||
+            request.indexOf("device:basic:1") > 0 ))
+        {
+          EA_DEBUGLN("Responding search req...");
+          respondToSearch();
+        }
       }
     }
   }
