@@ -152,11 +152,20 @@ private:
 
     //Unique id must be 12 character len.
     //use the MAC, add the device name, then use a truncated MD5 hash as unique id
-    EspalexaDevice* dev = devices[idx-1];
-    mac.concat(dev->getName());
-    String hash = makeMD5(mac).substring(0,DEVICE_UNIQUE_ID_LENGTH/*-1*/);
-    //hash.concat(idx);
-    return hash;
+ //   EspalexaDevice* dev = devices[idx-1];
+ //   mac.concat(dev->getName());
+ //   String hash = makeMD5(mac).substring(0,DEVICE_UNIQUE_ID_LENGTH/*-1*/);
+ //   //hash.concat(idx);
+ //   return hash;
+
+    //Unique id must be 12 character len.
+    //use the first part of the MAC followed by the device id in hex value
+    //uniqueId: aabbccddeeii
+    String uniqueId = mac.substring(0, DEVICE_UNIQUE_ID_LENGTH - 2);
+    char bufIdx[3];
+    snprintf(bufIdx, sizeof(bufIdx), "%.*x", 2, idx);
+    uniqueId.concat(bufIdx, strlen(bufIdx));
+    return uniqueId;
   }
 
   uint32_t decodeLightId(uint32_t id) {
@@ -501,13 +510,13 @@ public:
       return true;
     }
 
-    if (req.indexOf("state") > 0) //client wants to control light
+    if ((req.indexOf("state") > 0) && (body.length() > 0)) //client wants to control light
     {
       server->send(200, "application/json", F("[{\"success\":{\"/lights/1/state/\": true}}]"));
 
       uint32_t devId = req.substring(req.indexOf("lights")+7).toInt();
       EA_DEBUG("ls"); EA_DEBUGLN(devId);
-      devId = decodeLightId(devId);
+      //devId = decodeLightId(devId);
       EA_DEBUGLN(devId);
       devId--; //zero-based for devices array
       if (devId >= currentDeviceCount) return true; //return if invalid ID
@@ -591,7 +600,7 @@ public:
         server->send(200, "application/json", jsonTemp);
       } else //client wants one light (devId)
       {
-        devId = decodeLightId(devId);
+        //devId = decodeLightId(devId);
         EA_DEBUGLN(devId);
         if (devId > currentDeviceCount)
         {
