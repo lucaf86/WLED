@@ -373,13 +373,15 @@ public:
     #else
     server = externalServer;
     #endif
-    #ifdef ARDUINO_ARCH_ESP32
-    udpConnected = espalexaUdp.beginMulticast(IPAddress(239, 255, 255, 250), 1900);
-    #else
-    udpConnected = espalexaUdp.beginMulticast(Network.localIP(), IPAddress(239, 255, 255, 250), 1900);
-    #endif
+    if (discoverable){
+      #ifdef ARDUINO_ARCH_ESP32
+      udpConnected = espalexaUdp.beginMulticast(IPAddress(239, 255, 255, 250), 1900);
+      #else
+      udpConnected = espalexaUdp.beginMulticast(Network.localIP(), IPAddress(239, 255, 255, 250), 1900);
+      #endif
+    }
 
-    if (udpConnected){
+    if (udpConnected || (!udpConnected && !discoverable)){
       
       startHttpServer();
       EA_DEBUGLN("Done");
