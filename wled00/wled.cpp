@@ -126,8 +126,9 @@ void WLED::loop()
   handleIR();
   handleNetworkTime();
   handleAlexa();
-
+#ifndef WLED_DISABLE_CRONIXIE
   handleOverlays();
+#endif
   yield();
 #ifdef WLED_USE_ANALOG_LEDS
   strip.setRgbwPwm();
@@ -484,7 +485,7 @@ void WLED::initInterfaces()
     MDNS.addServiceTxt("wled", "tcp", "mac", escapedMac.c_str());
   }
   server.begin();
-
+#ifndef WLED_DISABLE_UDP_IN_WIFI_STA
   if (udpPort > 0 && udpPort != ntpLocalPort) {
     udpConnected = notifierUdp.begin(udpPort);
     if (udpConnected && udpRgbPort != udpPort)
@@ -492,11 +493,14 @@ void WLED::initInterfaces()
     if (udpConnected && udpPort2 != udpPort && udpPort2 != udpRgbPort)
       udp2Connected = notifier2Udp.begin(udpPort2);
   }
+#endif
   if (ntpEnabled)
     ntpConnected = ntpUdp.begin(ntpLocalPort);
 
   initBlynk(blynkApiKey);
+  #ifndef WLED_DISABLE_E131
   e131.begin(e131Multicast, e131Port, e131Universe, E131_MAX_UNIVERSE_COUNT);
+  #endif
   reconnectHue();
   initMqtt();
   interfacesInited = true;
