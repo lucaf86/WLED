@@ -154,7 +154,6 @@ void deserializeConfig() {
   CJSON(bootPreset, def[F("ps")]);
   CJSON(turnOnAtBoot, def["on"]); // true
   CJSON(briS, def["bri"]); // 128
-  if (briS == 0) briS = 255;
 
   JsonObject def_cy = def[F("cy")];
   CJSON(presetCyclingEnabled, def_cy["on"]);
@@ -367,6 +366,7 @@ void serializeConfig() {
   ap[F("ssid")] = apSSID;
   ap[F("pskl")] = strlen(apPass);
   ap[F("chan")] = apChannel;
+  ap[F("hide")] = apHide;
   ap[F("behav")] = apBehavior;
 
   JsonArray ap_ip = ap.createNestedArray("ip");
