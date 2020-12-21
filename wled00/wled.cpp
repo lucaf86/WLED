@@ -398,7 +398,8 @@ void WLED::initConnection()
 #if defined(ARDUINO_ARCH_ESP32) && defined(WLED_USE_ETHERNET)
   ETH.begin();
 #endif
-
+  WiFi.setAutoConnect (false);
+  WiFi.setAutoReconnect(false);
   WiFi.disconnect(true);        // close old connections
 #ifdef ESP8266
   WiFi.setPhyMode(WIFI_PHY_MODE_11N);
@@ -440,6 +441,7 @@ void WLED::initConnection()
   WiFi.hostname(hostname);
 #endif
 
+  WiFi.forceSleepWake();
   WiFi.begin(clientSSID, clientPass);
 
 #ifdef ARDUINO_ARCH_ESP32

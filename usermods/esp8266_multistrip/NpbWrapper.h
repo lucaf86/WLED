@@ -55,7 +55,7 @@ const uint8_t dataPins[numStrips] = {DATA_PINS}; // change these pins based on y
 // For the other use bitBang
 // Convenience #defines for creating NeoPixelBrightnessBus 
 #define NeoPixelBrightnessBusGrb0 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266Uart1Ws2813Method>
-//#define NeoPixelBrightnessBusGrb0 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266BitBang800KbpsMethod>
+//#define NeoPixelBrightnessBusGrb0 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266Dma800KbpsMethod>
 #define NeoPixelBrightnessBusGrb1 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266BitBang800KbpsMethod>
 #define NeoPixelBrightnessBusGrb2 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266BitBang800KbpsMethod>
 #define NeoPixelBrightnessBusGrb3 NeoPixelBrightnessBus<PIXELFEATURE3, NeoEsp8266Dma800KbpsMethod>
@@ -134,8 +134,42 @@ public:
     }
   }
 
+#ifdef CUSTOM_SHOW
+  uint8_t stripToShow = 0;
+
+  void SetShow() {
+    stripToShow = NUM_STRIPS;
+  }
+
+  bool isPendingShow() {
+    return ((stripToShow) ? true : false);
+  }
+
+  uint8_t whichShow()
+  {
+    uint8_t _stripToShow = stripToShow;
+    stripToShow = stripToShow - 1;
+    return (_stripToShow - 1);
+  }
+
   void Show()
   {
+    uint8_t idx = whichShow();
+    switch (idx)
+    {
+      case 0: pGrb0->Show(); ESP8266_MULTISTRIP_YIELD; break;
+      case 1: pGrb1->Show(); ESP8266_MULTISTRIP_YIELD; break;
+      case 2: pGrb2->Show(); ESP8266_MULTISTRIP_YIELD; break;
+      case 3: pGrb3->Show(); ESP8266_MULTISTRIP_YIELD; break;
+    }
+  }
+
+  void Show_all()
+  {
+#else
+  void Show()
+  {
+#endif
   //  switch (_type)
   //  {
   //    case NeoPixelType_Grb:

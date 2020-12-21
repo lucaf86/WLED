@@ -74,7 +74,18 @@ void WS2812FX::init(bool supportWhite, uint16_t countPixels, bool skipFirst)
 void WS2812FX::service() {
   uint32_t nowUp = millis(); // Be aware, millis() rolls over every 49 days
   now = nowUp + timebase;
-  if (nowUp - _lastShow < MIN_SHOW_DELAY) return;
+  if (nowUp - _lastShow < MIN_SHOW_DELAY) {
+#ifdef CUSTOM_SHOW
+    if(bus->isPendingShow()) {
+      yield();
+      if (!isUpdating()) {
+        bus->Show();
+        //_lastShow = millis();
+      }
+    }
+#endif
+    return;
+  }
   bool doShow = false;
 
   for(uint8_t i=0; i < MAX_NUM_SEGMENTS; i++)
@@ -109,6 +120,17 @@ void WS2812FX::service() {
     yield();
     show();
   }
+#ifdef CUSTOM_SHOW
+  else {
+    if(bus->isPendingShow()) {
+      yield();
+      if (!isUpdating()) {
+        bus->Show();
+        //_lastShow = millis();
+      }
+    }
+  }
+#endif
   _triggered = false;
 }
 
@@ -307,6 +329,9 @@ void WS2812FX::show(void) {
   // all of the data has been sent.
   // See https://github.com/Makuna/NeoPixelBus/wiki/ESP32-NeoMethods#neoesp32rmt-methods
   if (!isUpdating()) {
+#ifdef CUSTOM_SHOW
+    bus->SetShow();
+#endif
     bus->Show();
     _lastShow = millis();
   }
