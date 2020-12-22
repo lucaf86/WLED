@@ -500,7 +500,7 @@ void WLED::initInterfaces()
   if (ntpEnabled)
     ntpConnected = ntpUdp.begin(ntpLocalPort);
 
-  initBlynk(blynkApiKey);
+  initBlynk(blynkApiKey, blynkHost, blynkPort);
   #ifndef WLED_DISABLE_E131
   e131.begin(e131Multicast, e131Port, e131Universe, E131_MAX_UNIVERSE_COUNT);
   #endif
