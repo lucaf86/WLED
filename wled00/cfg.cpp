@@ -203,8 +203,10 @@ void deserializeConfig() {
   CJSON(arlsOffset, if_live[F("offset")]); // 0
 
   CJSON(alexaEnabled, interfaces[F("va")][F("alexa")]); // false
+  #ifdef ALEXA_DISCOVER_DISABLE_JSON
   CJSON(alexaDiscover, interfaces[F("va")][F("alexaDiscover")]);
-
+  #endif
+  
   CJSON(macroAlexaOn, interfaces[F("va")][F("macros")][0]);
   CJSON(macroAlexaOff, interfaces[F("va")][F("macros")][1]);
 
@@ -530,7 +532,9 @@ void serializeConfig() {
 
   JsonObject if_va = interfaces.createNestedObject("va");
   if_va[F("alexa")] = alexaEnabled;
+  #ifdef ALEXA_DISCOVER_DISABLE_JSON
   if_va[F("alexaDiscover")] = alexaDiscover;
+  #endif
 
   JsonArray if_va_macros = if_va.createNestedArray("macros");
   if_va_macros.add(macroAlexaOn);

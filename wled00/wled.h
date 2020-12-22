@@ -246,7 +246,9 @@ WLED_GLOBAL bool notifyHue    _INIT(true);                        // send notifi
 WLED_GLOBAL bool notifyTwice  _INIT(false);                       // notifications use UDP: enable if devices don't sync reliably
 
 WLED_GLOBAL bool alexaEnabled _INIT(false);                       // enable device control by Amazon Echo
+#ifdef ALEXA_DISCOVER_DISABLE_JSON
 WLED_GLOBAL bool alexaDiscover _INIT(false);                      // enable device discovery by Amazon Echo
+#endif
 WLED_GLOBAL char alexaInvocationName[33] _INIT("Light");          // speech control name of device. Choose something voice-to-text can understand
 
 WLED_GLOBAL char blynkApiKey[36] _INIT("");                       // Auth token for Blynk server. If empty, no connection will be made

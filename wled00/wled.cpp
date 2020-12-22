@@ -126,9 +126,7 @@ void WLED::loop()
   handleIR();
   handleNetworkTime();
   handleAlexa();
-#ifndef WLED_DISABLE_CRONIXIE
   handleOverlays();
-#endif
   yield();
 #ifdef WLED_USE_ANALOG_LEDS
   strip.setRgbwPwm();

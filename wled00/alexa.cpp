@@ -18,13 +18,17 @@ void alexaInit()
   {
     if (espalexaDevice == nullptr) //only init once
     {
+      #ifdef ALEXA_DISCOVER_DISABLE_JSON
       espalexa.setDiscoverable(alexaDiscover);
+      #endif
       espalexaDevice = new EspalexaDevice(alexaInvocationName, onAlexaChange, EspalexaDeviceType::extendedcolor);
       espalexa.addDevice(espalexaDevice);
       espalexa.begin(&server);
     } else {
       espalexaDevice->setName(alexaInvocationName);
+      #ifdef ALEXA_DISCOVER_DISABLE_JSON
       espalexa.setDiscoverable(alexaDiscover);
+      #endif
     }
   }
 }
