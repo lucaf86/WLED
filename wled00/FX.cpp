@@ -3846,12 +3846,11 @@ uint16_t WS2812FX::mode_tv_simulator(void) {
   return FRAMETIME;
   #endif
 }
-}
 
-uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration) {
+uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16_t stepDuration) {
   int16_t brightness = SEGENV.aux1;
   //uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
-  uint32 color;
+  uint32_t color;
   uint8_t colorIdx = 0;
   uint8_t r,g,b;
 
@@ -3927,7 +3926,7 @@ uint16_t WS2812FX::fade_in_out_alternate(int16_t fadeAmount, uint16 stepDuration
 uint16_t WS2812FX::mode_fading_retro(void) {
   //uint32_t my_palette[4] = {0x00FF0000,0x0000FF00,0x00FFA000,0x000000FF}; // wrgb format
   int16_t fadeAmount;
-  uint16 stepDuration, ret;
+  uint16_t stepDuration, ret;
 
   fadeAmount = 256 - SEGMENT.intensity;
   stepDuration = FRAMETIME * 2 + (255 - SEGMENT.speed);
