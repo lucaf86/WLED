@@ -54,6 +54,9 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 #endif
 
+/* Disable effects with high flash memory usage (currently TV simulator) - saves 18.5kB */
+//#define WLED_DISABLE_FX_HIGH_FLASH_USE
+
 /* Not used in all effects yet */
 #ifndef WLED_FPS
 #define WLED_FPS         42
@@ -120,7 +123,7 @@
 #define IS_REVERSE      ((SEGMENT.options & REVERSE     ) == REVERSE     )
 #define IS_SELECTED     ((SEGMENT.options & SELECTED    ) == SELECTED    )
 
-#define MODE_COUNT  123
+#define MODE_COUNT  124
 
 #define FX_MODE_STATIC                   0
 #define FX_MODE_BLINK                    1
@@ -245,6 +248,7 @@
 #define FX_MODE_RGB_PROPELLER          120
 #define FX_MODE_RANDOM_MARCH           121
 #define FX_MODE_MATRIX                 122
+#define FX_MODE_TV_SIMULATOR           123
 
 class WS2812FX {
   typedef uint16_t (WS2812FX::*mode_ptr)(void);
@@ -481,6 +485,7 @@ class WS2812FX {
       _mode[FX_MODE_RGB_PROPELLER]           = &WS2812FX::mode_rgb_propeller;
       _mode[FX_MODE_RANDOM_MARCH]            = &WS2812FX::mode_random_march;
       _mode[FX_MODE_MATRIX]                  = &WS2812FX::mode_matrix;
+      _mode[FX_MODE_TV_SIMULATOR]            = &WS2812FX::mode_tv_simulator;
 
       _brightness = DEFAULT_BRIGHTNESS;
       currentPalette = CRGBPalette16(CRGB::Black);
@@ -524,7 +529,7 @@ class WS2812FX {
       segmentsAreIdentical(Segment* a, Segment* b),
       setEffectConfig(uint8_t m, uint8_t s, uint8_t i, uint8_t p),
       // return true if the strip is being sent pixel updates
-      isUpdating();
+      isUpdating(void);
 
     uint8_t
       mainSegment = 0,
@@ -699,7 +704,8 @@ class WS2812FX {
       mode_random_burst(void),
       mode_rgb_propeller(void),
       mode_random_march(void),
-      mode_matrix(void);
+      mode_matrix(void),
+      mode_tv_simulator(void);
 
   private:
     NeoPixelWrapper *bus;
@@ -789,7 +795,7 @@ const char JSON_mode_names[] PROGMEM = R"=====([
 "Fireworks 1D","Bouncing Balls","Sinelon","Sinelon Dual","Sinelon Rainbow","Popcorn","Drip","Plasma","Percent","Ripple Rainbow",
 "Heartbeat","Pacifica","Candle Multi", "Solid Glitter","Sunrise","Phased","Twinkleup","Noise Pal", "Sine","Phased Noise",
 "Flow","Chunchun","Dancing Shadows","Washing Machine","Candy Cane","Blends","_Fade In-Out","_Test","_Rainbow loop",
-"_Random Burst","_Rgb Propeller","_Random March","_Matrix"
+"_Random Burst","_Rgb Propeller","_Random March","_Matrix","TV Simulator"
 ])=====";
 
 

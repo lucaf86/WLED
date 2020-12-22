@@ -1,6 +1,38 @@
 ## WLED changelog
 
+### Development versions after 0.11.1 release
+
+#### Build 2012210
+
+-  Split index.htm in separate CSS + JS files (PR #1542)
+-  Minify UI HTML, saving >1.5kB flash
+-  Fixed JShint warnings
+
+#### Build 2012180
+
+-  Boot brightness 0 will now use the brightness from preset
+-  Add iOS scrolling momentum (from PR #1528)
+
+### WLED release 0.11.1
+
+#### Build 2012180
+
+-   Release of WLED 0.11.1 "Mirai"
+-   Fixed AP hide not saving (fixes #1520)
+-   Fixed MQTT password re-transmitted to HTML
+-   Hide Update buttons while uploading, accept .bin
+-   Make sure AP password is at least 8 characters long
+
 ### Development versions after 0.11.0 release
+
+#### Build 2012160
+
+-   Bump Espalexa to 2.5.0, fixing discovery (PR Espalexa/#152, originally PR #1497)
+
+#### Build 2012150
+
+-   Added Blends FX (PR #1491)
+-   Fixed an issue that made it impossible to deactivate timed presets
 
 #### Build 2012140
 

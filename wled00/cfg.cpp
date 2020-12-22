@@ -154,7 +154,6 @@ void deserializeConfig() {
   CJSON(bootPreset, def[F("ps")]);
   CJSON(turnOnAtBoot, def["on"]); // true
   CJSON(briS, def["bri"]); // 128
-  if (briS == 0) briS = 255;
 
   JsonObject def_cy = def[F("cy")];
   CJSON(presetCyclingEnabled, def_cy["on"]);
@@ -212,6 +211,10 @@ void deserializeConfig() {
   tdd = strnlen(apikey, 36);
   if (tdd > 20 || tdd == 0)
     getStringFromJson(blynkApiKey, apikey, 36); //normally not present due to security
+
+  JsonObject if_blynk = interfaces[F("blynk")];
+  getStringFromJson(blynkHost, if_blynk[F("host")], 33);
+  CJSON(blynkPort, if_blynk[F("port")]);
 
   JsonObject if_mqtt = interfaces[F("mqtt")];
   CJSON(mqttEnabled, if_mqtt[F("en")]);
@@ -279,11 +282,13 @@ void deserializeConfig() {
     CJSON(timerMacro[it], timer[F("macro")]);
 
     byte dowPrev =  timerWeekday[it];
-    bool actPrev = timerWeekday[it] & 0x01;
+    //note: act is currently only 0 or 1.
+    //the reason we are not using bool is that the on-disk type in 0.11.0 was already int
+    int actPrev = timerWeekday[it] & 0x01;
     CJSON(timerWeekday[it], timer[F("dow")]);
     if (timerWeekday[it] != dowPrev) { //present in JSON
       timerWeekday[it] <<= 1; //add active bit
-      bool act = timer[F("en")] | actPrev;
+      int act = timer[F("en")] | actPrev;
       if (act) timerWeekday[it]++;
     }
 
@@ -310,11 +315,11 @@ void deserializeConfig() {
   CJSON(DMXStart, dmx[F("start")]);
   CJSON(DMXStartLED,dmx[F("start-led")]);
 
-  JsonArray dmx_fixmap = dmx.createNestedArray("fixmap");
+  JsonArray dmx_fixmap = dmx[F("fixmap")];
   it = 0;
   for (int i : dmx_fixmap) {
     if (it > 14) break;
-    DMXFixtureMap[i] = i;
+    CJSON(DMXFixtureMap[i],dmx_fixmap[i]);
     it++;
   }
   #endif
@@ -364,6 +369,7 @@ void serializeConfig() {
   ap[F("ssid")] = apSSID;
   ap[F("pskl")] = strlen(apPass);
   ap[F("chan")] = apChannel;
+  ap[F("hide")] = apHide;
   ap[F("behav")] = apBehavior;
 
   JsonArray ap_ip = ap.createNestedArray("ip");
@@ -529,6 +535,8 @@ void serializeConfig() {
   if_va_macros.add(macroAlexaOff);
   JsonObject if_blynk = interfaces.createNestedObject("blynk");
   if_blynk[F("token")] = strlen(blynkApiKey) ? "Hidden":"";
+  if_blynk[F("host")] = blynkHost;
+  if_blynk[F("port")] = blynkPort;
 
   JsonObject if_mqtt = interfaces.createNestedObject("mqtt");
   if_mqtt[F("en")] = mqttEnabled;

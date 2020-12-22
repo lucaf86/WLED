@@ -10,7 +10,7 @@
  */
 /*
  * @title Espalexa library
- * @version 2.4.6
+ * @version 2.5.0
  * @author Christian Schwinne
  * @license MIT
  * @contributors d-999
@@ -50,7 +50,7 @@
 #include "../network/Network.h"
 
 #ifdef ESPALEXA_DEBUG
- #pragma message "Espalexa 2.4.6 debug mode"
+ #pragma message "Espalexa 2.5.0 debug mode"
  #define EA_DEBUG(x)  Serial.print (x)
  #define EA_DEBUGLN(x) Serial.println (x)
 #else
@@ -117,50 +117,24 @@ private:
     return "";
   }
   
-  String byte2hex(uint8_t zahl)
+  void encodeLightId(uint8_t idx, char* out)
   {
-    String hstring = String(zahl, HEX);
-    if (zahl < 16)
-    {
-      hstring = "0" + hstring;
+    //Unique id must be 12 character len
+    //use the last 10 characters of the MAC followed by the device id in hex value
+    //uniqueId: aabbccddeeii
+
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+
+    //shift the mac address to the left (discard first byte)
+    for (uint8_t i = 0; i < 5; i++) {
+      mac[i] = mac[i+1];
     }
-    return hstring;
+    mac[5] = idx;
+
+    for (uint8_t i = 0; i < 6; i++) {
+      sprintf(out + i*2, "%.2x", mac[i]);
   }
-
-  String makeMD5(String text)
-  {
-    unsigned char bbuf[16];
-    String hash = "";
-    MD5Builder md5;
-    md5.begin();
-    md5.add(text);
-    md5.calculate();
-  
-    md5.getBytes(bbuf);
-    for (uint8_t i = 0; i < 16; i++)
-    {
-      hash += byte2hex(bbuf[i]);
-    }
-    return hash;
-  }
-
-  String encodeLightId(uint8_t idx)
-  {
-    String mac = WiFi.macAddress();
-    mac.replace(":","");
-    mac.toLowerCase();
-
-    //Unique id must be 12 character len.
-    //use the MAC, add the device name, then use a truncated MD5 hash as unique id
-    EspalexaDevice* dev = devices[idx-1];
-    mac.concat(dev->getName());
-    String hash = makeMD5(mac).substring(0,DEVICE_UNIQUE_ID_LENGTH/*-1*/);
-    //hash.concat(idx);
-    return hash;
-  }
-
-  uint32_t decodeLightId(uint32_t id) {
-    return id & 0xF;
   }
   
   //device JSON string: color+temperature device emulates LCT015, dimmable device LWB010, (TODO: on/off Plug 01, color temperature device LWT010, color device LST001)
@@ -170,10 +144,8 @@ private:
     if (deviceId >= currentDeviceCount) {strcpy(buf,"{}"); return;} //error
     EspalexaDevice* dev = devices[deviceId];
     
-    //char buf_bri[12] = "";
-    //brightness support, add "bri" to JSON
-    //if (dev->getType() != EspalexaDeviceType::onoff) 
-    //  sprintf(buf_bri,",\"bri\":%u", dev->getLastValue()-1);
+    char buf_lightid[13];
+    encodeLightId(deviceId + 1, buf_lightid);
     
     char buf_col[80] = "";
     //color support
@@ -195,10 +167,10 @@ private:
     
     sprintf_P(buf, PSTR("{\"state\":{\"on\":%s,\"bri\":%u%s%s,\"alert\":\"none%s\",\"mode\":\"homeautomation\",\"reachable\":true},"
                    "\"type\":\"%s\",\"name\":\"%s\",\"modelid\":\"%s\",\"manufacturername\":\"Philips\",\"productname\":\"E%u"
-                   "\",\"uniqueid\":\"%s\",\"swversion\":\"espalexa-2.4.6\"}")
+                   "\",\"uniqueid\":\"%s\",\"swversion\":\"espalexa-2.5.0\"}")
                    
     , (dev->getValue())?"true":"false", dev->getLastValue()-1, buf_col, buf_ct, buf_cm, typeString(dev->getType()),
-    dev->getName().c_str(), modelidString(dev->getType()), static_cast<uint8_t>(dev->getType()), encodeLightId(deviceId+1).c_str());
+    dev->getName().c_str(), modelidString(dev->getType()), static_cast<uint8_t>(dev->getType()), buf_lightid);
   }
   
   //Espalexa status page /espalexa
@@ -220,7 +192,7 @@ private:
     }
     res += "\r\nFree Heap: " + (String)ESP.getFreeHeap();
     res += "\r\nUptime: " + (String)millis();
-    res += "\r\n\r\nEspalexa library v2.4.6 by Christian Schwinne 2020";
+    res += "\r\n\r\nEspalexa library v2.5.0 by Christian Schwinne 2020";
     server->send(200, "text/plain", res);
   }
   #endif
@@ -256,7 +228,7 @@ private:
         "<URLBase>http://%s:80/</URLBase>"
         "<device>"
           "<deviceType>urn:schemas-upnp-org:device:Basic:1</deviceType>"
-          "<friendlyName>Philips hue (%s:80)</friendlyName>"
+          "<friendlyName>Espalexa (%s:80)</friendlyName>"
           "<manufacturer>Royal Philips Electronics</manufacturer>"
           "<manufacturerURL>http://www.philips.com</manufacturerURL>"
           "<modelDescription>Philips hue Personal Wireless Lighting</modelDescription>"
@@ -398,32 +370,28 @@ public:
     
     if (!udpConnected) return;   
     int packetSize = espalexaUdp.parsePacket();    
-    if (!packetSize) return; //no new udp packet
+    if (packetSize < 1) return; //no new udp packet
     
     EA_DEBUGLN("Got UDP!");
-    //char packetBuffer[255]; //buffer to hold incoming udp packet
-    //uint16_t len = espalexaUdp.read(packetBuffer, 254);
-    if (packetSize > 0) {
-      unsigned char packetBuffer[packetSize+1]; //buffer to hold incoming udp packet
-      int len = espalexaUdp.read(packetBuffer, packetSize+1);
-      packetBuffer[packetSize] = 0;
-    
+
+    unsigned char packetBuffer[packetSize+1]; //buffer to hold incoming udp packet
+    espalexaUdp.read(packetBuffer, packetSize);
+    packetBuffer[packetSize] = 0;
+  
       espalexaUdp.flush();
       if (!discoverable) return; //do not reply to M-SEARCH if not discoverable
     
-      String request = (const char *) packetBuffer;
-      if(request.indexOf("M-SEARCH") >= 0) {
-        EA_DEBUGLN(request);
-        if(request.indexOf("ssdp:discover") > 0 && 
-           (request.indexOf("upnp:rootdevice") > 0 || 
-            //request.indexOf("asic:1") > 0 ||
-            request.indexOf("ssdp:all") > 0 ||
-            request.indexOf("device:basic:1") > 0 ))
-        {
-          EA_DEBUGLN("Responding search req...");
-          respondToSearch();
-        }
-      }
+    const char* request = (const char *) packetBuffer;
+    if (strstr(request, "M-SEARCH") == nullptr) return;
+
+    EA_DEBUGLN(request);
+    if (strstr(request, "ssdp:disc")  != nullptr &&  //short for "ssdp:discover"
+        (strstr(request, "upnp:rootd") != nullptr || //short for "upnp:rootdevice"
+         strstr(request, "ssdp:all")   != nullptr ||
+         strstr(request, "asic:1")     != nullptr )) //short for "device:basic:1"
+    {
+      EA_DEBUGLN("Responding search req...");
+      respondToSearch();
     }
   }
 
@@ -499,13 +467,12 @@ public:
       return true;
     }
 
-    if (req.indexOf("state") > 0) //client wants to control light
+    if ((req.indexOf("state") > 0) && (body.length() > 0)) //client wants to control light
     {
       server->send(200, "application/json", F("[{\"success\":{\"/lights/1/state/\": true}}]"));
 
       uint32_t devId = req.substring(req.indexOf("lights")+7).toInt();
       EA_DEBUG("ls"); EA_DEBUGLN(devId);
-      devId = decodeLightId(devId);
       EA_DEBUGLN(devId);
       devId--; //zero-based for devices array
       if (devId >= currentDeviceCount) return true; //return if invalid ID
@@ -577,7 +544,6 @@ public:
         String jsonTemp = "{";
         for (int i = 0; i<currentDeviceCount; i++)
         {
-          //jsonTemp += "\"" + String(encodeLightId(i+1)) + "\":";
           jsonTemp += "\"" + String(i+1) + "\":";
           char buf[512];
           deviceJsonString(i+1, buf);
@@ -589,7 +555,6 @@ public:
         server->send(200, "application/json", jsonTemp);
       } else //client wants one light (devId)
       {
-        devId = decodeLightId(devId);
         EA_DEBUGLN(devId);
         if (devId > currentDeviceCount)
         {
