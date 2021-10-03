@@ -4,17 +4,17 @@
  * Methods to handle saving and loading presets to/from the filesystem
  */
 
-bool applyPreset(byte index)
+bool applyPreset(byte index, byte callMode)
 {
-  JsonDocument* doc = fileDoc;
-  if (doc) {
-    errorFlag = readObjectFromFileUsingId("/presets.json", index, doc) ? ERR_NONE : ERR_FS_PLOAD;
-    JsonObject fdo = doc->as<JsonObject>();
+  if (index == 0) return false;
+  if (fileDoc) {
+    errorFlag = readObjectFromFileUsingId("/presets.json", index, fileDoc) ? ERR_NONE : ERR_FS_PLOAD;
+    JsonObject fdo = fileDoc->as<JsonObject>();
     if (fdo["ps"] == index) fdo.remove("ps"); //remove load request for same presets to prevent recursive crash
     #ifdef WLED_DEBUG_FS
-      serializeJson(*doc, Serial);
+      serializeJson(*fileDoc, Serial);
     #endif
-    deserializeState(fdo);
+    deserializeState(fdo, callMode, index);
   } else {
     DEBUGFS_PRINTLN(F("Make read buf"));
     DynamicJsonDocument fDoc(JSON_BUFFER_SIZE);
@@ -24,17 +24,17 @@ bool applyPreset(byte index)
     #ifdef WLED_DEBUG_FS
       serializeJson(fDoc, Serial);
     #endif
-    deserializeState(fdo);
+    deserializeState(fdo, callMode, index);
   }
 
   if (!errorFlag) {
     currentPreset = index;
-    isPreset = true;
     return true;
   }
   return false;
 }
 
+//persist=false is not currently honored
 void savePreset(byte index, bool persist, const char* pname, JsonObject saveobj)
 {
   if (index == 0 || index > 250) return;
@@ -69,13 +69,13 @@ void savePreset(byte index, bool persist, const char* pname, JsonObject saveobj)
 
     writeObjectToFileUsingId("/presets.json", index, fileDoc);
   }
-  presetsModifiedTime = now(); //unix time
+  presetsModifiedTime = toki.second(); //unix time
   updateFSInfo();
 }
 
 void deletePreset(byte index) {
   StaticJsonDocument<24> empty;
   writeObjectToFileUsingId("/presets.json", index, &empty);
-  presetsModifiedTime = now(); //unix time
+  presetsModifiedTime = toki.second(); //unix time
   updateFSInfo();
 }

@@ -35,7 +35,8 @@ void handleDDPPacket(e131_packet_t* p) {
   realtimeLock(realtimeTimeoutMs, REALTIME_MODE_DDP);
   
   for (uint16_t i = start; i < stop; i++) {
-    setRealtimePixel(i, data[c++], data[c++], data[c++], 0);
+    setRealtimePixel(i, data[c], data[c+1], data[c+2], 0);
+    c+=3;
   }
 
   bool push = p->flags & DDP_PUSH_FLAG;
@@ -155,9 +156,9 @@ void handleE131Packet(e131_packet_t* p, IPAddress clientIP, byte protocol){
         col[3]        = e131_data[DMXAddress+11]; //white
         colSec[3]     = e131_data[DMXAddress+12];
       }
-      transitionDelayTemp = 0;                        // act fast
-      colorUpdated(NOTIFIER_CALL_MODE_NOTIFICATION);  // don't send UDP
-      return;                                         // don't activate realtime live mode
+      transitionDelayTemp = 0;               // act fast
+      colorUpdated(CALL_MODE_NOTIFICATION);  // don't send UDP
+      return;                                // don't activate realtime live mode
       break;
 
     case DMX_MODE_MULTIPLE_DRGB:
@@ -187,11 +188,13 @@ void handleE131Packet(e131_packet_t* p, IPAddress clientIP, byte protocol){
         uint16_t ledsTotal = previousLeds + (dmxChannels - dmxOffset +1) / dmxChannelsPerLed;
         if (!is4Chan) {
           for (uint16_t i = previousLeds; i < ledsTotal; i++) {
-            setRealtimePixel(i, e131_data[dmxOffset++], e131_data[dmxOffset++], e131_data[dmxOffset++], 0);
+            setRealtimePixel(i, e131_data[dmxOffset], e131_data[dmxOffset+1], e131_data[dmxOffset+2], 0);
+            dmxOffset+=3;
           }
         } else {
           for (uint16_t i = previousLeds; i < ledsTotal; i++) {
-            setRealtimePixel(i, e131_data[dmxOffset++], e131_data[dmxOffset++], e131_data[dmxOffset++], e131_data[dmxOffset++]);
+            setRealtimePixel(i, e131_data[dmxOffset], e131_data[dmxOffset+1], e131_data[dmxOffset+2], e131_data[dmxOffset+3]);
+            dmxOffset+=4;
           }
         }
         break;
