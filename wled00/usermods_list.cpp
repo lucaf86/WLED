@@ -23,7 +23,9 @@
 #include "../usermods/SN_Photoresistor/usermod_sn_photoresistor.h"
 #endif
 
-//#include "usermod_v2_empty.h"
+#ifdef USERMOD_PWM_FAN
+#include "../usermods/PWM_fan/usermod_PWM_fan.h"
+#endif
 
 #ifdef USERMOD_BUZZER
 #include "../usermods/buzzer/usermod_v2_buzzer.h"
@@ -94,6 +96,14 @@
 #include "../usermods/rgb-rotary-encoder/rgb-rotary-encoder.h"
 #endif
 
+#ifdef USERMOD_SEVEN_SEGMENT
+#include "../usermods/seven_segment_display/usermod_v2_seven_segment_display.h"
+#endif
+
+#ifdef QUINLED_AN_PENTA
+#include "../usermods/quinled-an-penta/quinled-an-penta.h"
+#endif
+
 void registerUsermods()
 {
 /*
@@ -115,7 +125,9 @@ void registerUsermods()
   usermods.add(new Usermod_SN_Photoresistor());
   #endif
 
-  //usermods.add(new UsermodRenameMe());
+  #ifdef USERMOD_PWM_FAN
+  usermods.add(new PWMFanUsermod());
+  #endif
 
   #ifdef USERMOD_BUZZER
   usermods.add(new BuzzerUsermod());
@@ -174,5 +186,13 @@ void registerUsermods()
 
   #ifdef RGB_ROTARY_ENCODER
   usermods.add(new RgbRotaryEncoderUsermod());
+  #endif
+
+  #ifdef USERMOD_SEVEN_SEGMENT
+  usermods.add(new SevenSegmentDisplay());
+  #endif
+
+  #ifdef QUINLED_AN_PENTA
+  usermods.add(new QuinLEDAnPentaUsermod());
   #endif
 }
