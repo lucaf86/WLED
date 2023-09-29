@@ -242,7 +242,7 @@
 #define FX_MODE_CHUNCHUN               111
 #define FX_MODE_DANCING_SHADOWS        112
 #define FX_MODE_WASHING_MACHINE        113
-// #define FX_MODE_CANDY_CANE             114  // removed in 0.14!
+#define FX_MODE_CANDY_CANE             114  // removed in 0.14!
 #define FX_MODE_BLENDS                 115
 #define FX_MODE_TV_SIMULATOR           116
 #define FX_MODE_DYNAMIC_SMOOTH         117 // candidate for removal (check3 in dynamic)
@@ -320,7 +320,16 @@
 #define FX_MODE_ROCKTAVES              185
 #define FX_MODE_2DAKEMI                186
 
-#define MODE_COUNT                     187
+// custom effects
+#define FX_MODE_FADING_RETRO           195 //115
+#define FX_MODE_TEST                   196 //116
+#define FX_MODE_RAINBOW_LOOP           197 //117
+#define FX_MODE_RANDOM_BURST           198 //118
+#define FX_MODE_RGB_PROPELLER          199 //119
+#define FX_MODE_RANDOM_MARCH           200 //120
+#define FX_MODE_MATRIX                 201 //121
+
+#define MODE_COUNT                     202
 
 typedef enum mapping1D2D {
   M12_Pixels = 0,
