@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
+<NotepadPlus>
+    <!-- The History of opened files list -->
+    <FindHistory nbMaxFindHistoryPath="10" nbMaxFindHistoryFilter="10" nbMaxFindHistoryFind="10" nbMaxFindHistoryReplace="10" matchWord="no" matchCase="no" wrap="yes" directionDown="yes" fifRecuisive="yes" fifInHiddenFolder="no" dlgAlwaysVisible="no" fifFilterFollowsDoc="no" fifFolderFollowsDoc="no" searchMode="2" transparencyMode="1" transparency="150" dotMatchesNewline="yes" isSearch2ButtonsMode="no" regexBackward4PowerUser="no">
+        <Path name="O:\WLED-master\wled00\src" />
+        <Path name="C:\Users\Luca\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.2" />
+        <Path name="C:\Users\Luca\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266" />
+        <Path name="C:\Users\Luca\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.2\cores\esp8266" />
+        <Path name="C:\Users\Luca\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.3.0" />
+        <Path name="D:\Acer_D\arduino_program\traincontrol\TrainControl_master" />
+        <Path name="C:\Users\Luca\AppData\Local\Arduino15" />
+        <Path name="D:\arduino-1.6.6" />
+        <Filter name="*.c;*.h;*.cpp;*.hpp;*.c*" />
+        <Filter name="*.h" />
+        <Filter name="*.c*" />
+        <Filter name="*.c" />
+        <Filter name="*" />
+        <Filter name="*.c;*.h" />
+        <Find name="0.2" />
+        <Find name="infill" />
+        <Find name="topsolid" />
+        <Find name="shutdown" />
+        <Find name="relay" />
+        <Find name="rela" />
+        <Find name="pochi" />
+        <Find name="d1" />
+        <Find name="poc" />
+        <Find name="Serial" />
+        <Replace name="" />
+        <Replace name=" Y" />
+        <Replace name="G" />
+        <Replace name="Z0" />
+        <Replace name="G1 Z0" />
+        <Replace name="G0 Z2.0000" />
+        <Replace name="G1 Z0 F350.0" />
+        <Replace name="G0" />
+        <Replace name="G1" />
+        <Replace name="G1 E-2.0000 F600" />
+        <Replace name=";G1 E-12.0000 F600" />
+    </FindHistory>
+    <History nbMaxFile="15" inSubMenu="no" customLength="-1">
+        <File filename="O:\PCB_Treno\arduino\arduino-B.Cu_v3.gcode" />
+        <File filename="O:\PCB_Treno\wemos\wemos-B.Cu.gcode" />
+        <File filename="O:\PCB_Treno\wemos_rotary\wemos-B.Cu.gcode" />
+        <File filename="C:\Users\Luca\AppData\Local\Temp\hot_air_gun_station_V1.0.ino" />
+        <File filename="O:\pcb_tft_1.8inc\repo\ARDUINO-SMD-REWORK-STATION\platformIoPjt\src\hot_air_gun_station_v1_33.cpp" />
+        <File filename="F:\Santa_Claus_Solid_LowRes_65_scaled.gcode" />
+        <File filename="F:\Santa_Claus_Solid_LowRes_w_hole.gcode" />
+        <File filename="F:\santa_xy_scaled_102_printed_v4.gcode" />
+        <File filename="F:\babbo_natale.gcode" />
+        <File filename="C:\Program Files\Notepad++\change.log" />
+        <File filename="O:\WLED-master\usermods\Fix_unreachable_webserver\readme.md" />
+        <File filename="O:\pcb_tft_1.8inc\repo\ARDUINO-SMD-REWORK-STATION_TFT_MAXIM\hot_air_gun_station\platformio.ini" />
+        <File filename="O:\WLED-master\tools\cdata.js" />
+        <File filename="C:\Users\Luca\AppData\Local\Arduino15\packages\esp32\hardware\esp32\1.0.4\tools\partitions\no_ota.csv" />
+        <File filename="O:\pcb_tft_1.8inc\repo\ARDUINO-SMD-REWORK-STATION_TFT_MAXIM\hot_air_gun_station\src\hot_air_gun_station.cpp" />
+    </History>
+    <ProjectPanels>
+        <ProjectPanel id="0" workSpaceFile="" />
+        <ProjectPanel id="1" workSpaceFile="" />
+        <ProjectPanel id="2" workSpaceFile="" />
+    </ProjectPanels>
+    <GUIConfigs>
+        <GUIConfig name="ToolBar" visible="yes">standard</GUIConfig>
+        <GUIConfig name="StatusBar">show</GUIConfig>
+        <GUIConfig name="TabBar" dragAndDrop="yes" drawTopBar="yes" drawInactiveTab="yes" reduce="yes" closeButton="yes" doubleClick2Close="no" vertical="no" multiLine="no" hide="no" quitOnEmpty="no" />
+        <GUIConfig name="ScintillaViewsSplitter">vertical</GUIConfig>
+        <GUIConfig name="UserDefineDlg" position="undocked">hide</GUIConfig

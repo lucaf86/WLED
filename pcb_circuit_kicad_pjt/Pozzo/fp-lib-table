@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name library)(type KiCad)(uri ${KIPRJMOD}/library)(options "")(descr "")(disabled))
+  (lib (name ESP32_mini)(type KiCad)(uri ${KIPRJMOD}/library/ESP32_mini.pretty)(options "")(descr ""))
+  (lib (name wemos_d1_mini)(type KiCad)(uri ${KIPRJMOD}/library/wemos_d1_mini.pretty)(options "")(descr "")(disabled))
+)
