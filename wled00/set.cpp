@@ -186,6 +186,7 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
           case 2 : freq = WLED_PWM_FREQ;      break;
           case 3 : freq = WLED_PWM_FREQ*2;    break;
           case 4 : freq = WLED_PWM_FREQ*10/3; break; // uint16_t max (19531 * 3.333)
+          case 5 : freq = 1220; break; // custom 1.2KHz frequency setting
         }
       } else if (Bus::is2Pin(type)) {
         switch (freq) {
@@ -195,6 +196,7 @@ void handleSettingsSet(AsyncWebServerRequest *request, byte subPage)
           case 2 : freq =  5000; break;
           case 3 : freq = 10000; break;
           case 4 : freq = 20000; break;
+          case 5 : freq = 1000; break;  // fallback do not break anything
         }
       } else {
         freq = 0;

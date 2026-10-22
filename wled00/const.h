@@ -549,6 +549,7 @@
     #define WLED_PWM_FREQ  19531  // APB clock is 80MHz
   #endif
 #endif
+  #define WLED_PWM_CUSTOM_FREQ_1220_HZ 1220
 #endif
 
 #define TOUCH_THRESHOLD 32 // limit to recognize a touch, higher value means more sensitive

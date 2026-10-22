@@ -352,6 +352,7 @@ void getSettingsJS(byte subPage, Print& settingsScript)
           case WLED_PWM_FREQ      : speed = 2; break;
           case WLED_PWM_FREQ*2    : speed = 3; break;
           case WLED_PWM_FREQ*10/3 : speed = 4; break; // uint16_t max (19531 * 3.333)
+          case WLED_PWM_CUSTOM_FREQ_1220_HZ : speed = 5; break;
         }
       } else if (bus->is2Pin()) {
         switch (speed) {
