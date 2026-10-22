@@ -87,7 +87,7 @@ const ethernet_settings ethernetBoards[] = {
 
   // ESP32-ETHERNET-KIT-VE
   {
-    0,                    // eth_address,
+    1,                    // eth_address,
     5,                    // eth_power,
     23,                   // eth_mdc,
     18,                   // eth_mdio,
@@ -144,8 +144,25 @@ const ethernet_settings ethernetBoards[] = {
     18,			              // eth_mdio,
     ETH_PHY_LAN8720,      // eth_type,
     ETH_CLOCK_GPIO0_OUT	// eth_clk_mode
-  }
+  },
+
+ // Gledopto Series With Ethernet
+ {
+    1,                    // eth_address, 
+    5,                    // eth_power, 
+    23,                   // eth_mdc, 
+    33,                   // eth_mdio, 
+    ETH_PHY_LAN8720,      // eth_type,
+    ETH_CLOCK_GPIO0_IN	 // eth_clk_mode
+  },
 };
+
+// sanity checks for ethernet config table and WLED_ETH_DEFAULT
+static_assert((sizeof(ethernetBoards)/sizeof(ethernetBoards[0])) == WLED_NUM_ETH_TYPES, "WLED_NUM_ETH_TYPES does not match size of ethernetBoards[] table.");
+#ifdef WLED_ETH_DEFAULT
+  static_assert(((WLED_ETH_DEFAULT) >= WLED_ETH_NONE) && ((WLED_ETH_DEFAULT) < WLED_NUM_ETH_TYPES), "WLED_ETH_DEFAULT is out of range.");
+#endif
+
 #endif
 
 
@@ -189,9 +206,8 @@ void WiFiEvent(WiFiEvent_t event)
       } else {
         ETH.config(INADDR_NONE, INADDR_NONE, INADDR_NONE);
       }
-      // convert the "serverDescription" into a valid DNS hostname (alphanumeric)
-      char hostname[64];
-      prepareHostname(hostname);
+      char hostname[64] = {'\0'}; // any "hostname" within a Fully Qualified Domain Name (FQDN) must not exceed 63 characters
+      getWLEDhostname(hostname, sizeof(hostname), false); // create DNS name based on standard WLED server name
       ETH.setHostname(hostname);
       showWelcomePage = false;
       break;
