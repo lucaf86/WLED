@@ -371,6 +371,7 @@ extern byte realtimeMode;           // used in getMappedPixelIndex()
 #define FX_MODE_PARTICLEGALAXY         217
 #define FX_MODE_COLORCLOUDS            218
 #define FX_MODE_SLOW_TRANSITION        219
+#define FX_MODE_2DANALOGCLOCK          220  // new in 16.1
 
 // custom effects
 #define FX_MODE_FADING_RETRO           300 //195 //115
@@ -940,7 +941,7 @@ class WS2812FX {
     uint8_t getFirstSelectedSegId() const;
     uint8_t getLastActiveSegmentId() const;
     uint8_t getActiveSegsLightCapabilities(bool selectedOnly = false) const;
-    uint8_t addEffect(uint8_t id, mode_ptr mode_fn, const char *mode_name);         // add effect to the list; defined in FX.cpp;
+    uint8_t addEffect(uint8_t id, mode_ptr mode_fn, const char *mode_name);         // add effect to the list - mode_name must point to PROGMEM; defined in FX.cpp;
 
     inline uint8_t getBrightness() const    { return _brightness; }       // returns current strip brightness
     inline static constexpr unsigned getMaxSegments() { return MAX_NUM_SEGMENTS; }  // returns maximum number of supported segments (fixed value)
