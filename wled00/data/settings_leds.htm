@@ -447,7 +447,7 @@ mA/LED: <select name="LAsel${s}" onchange="enLA(this,'${s}');UI();">
 <option value="5">GBR</option>
 </select></div>
 <div id="dig${s}w" style="display:none">Swap: <select name="WO${s}"><option value="0">None</option><option value="1">W & B</option><option value="2">W & G</option><option value="3">W & R</option><option data-opt="CCT" value="4">WW & CW</option></select></div>
-<div id="dig${s}l" style="display:none">Clock: <select name="SP${s}"><option value="0">Slowest</option><option value="1">Slow</option><option value="2">Normal</option><option value="3">Fast</option><option value="4">Fastest</option></select></div>
+<div id="dig${s}l" style="display:none">Clock: <select name="SP${s}"><option value="0">Slowest</option><option value="1">Slow</option><option value="2">Normal</option><option value="3">Fast</option><option value="4">Fastest</option><option value="5">Custom_1.2KHz</option></select></div>
 <div>
 <span id="psd${s}">Start:</span> <input type="number" name="LS${s}" id="ls${s}" class="l starts" min="0" max="8191" value="${lastEnd(i)}" oninput="startsDirty[${i}]=true;UI();" required />&nbsp;
 <div id="dig${s}c" style="display:inline">Length: <input type="number" name="LC${s}" class="l" min="1" max="${maxPB}" value="1" required oninput="UI()" /></div><br>
