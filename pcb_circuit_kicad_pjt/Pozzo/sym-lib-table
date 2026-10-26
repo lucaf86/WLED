@@ -1,4 +1,5 @@
 (sym_lib_table
   (version 7)
   (lib (name "ESP32_mini")(type "Legacy")(uri "${KIPRJMOD}/library/ESP32_mini.lib")(options "")(descr ""))
+  (lib (name "CN5711_module")(type "KiCad")(uri "${KIPRJMOD}/library/CN5711_module.kicad_sym")(options "")(descr ""))
 )

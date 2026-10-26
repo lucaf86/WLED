@@ -1,5 +1,7 @@
 (fp_lib_table
-  (lib (name library)(type KiCad)(uri ${KIPRJMOD}/library)(options "")(descr "")(disabled))
-  (lib (name ESP32_mini)(type KiCad)(uri ${KIPRJMOD}/library/ESP32_mini.pretty)(options "")(descr ""))
-  (lib (name wemos_d1_mini)(type KiCad)(uri ${KIPRJMOD}/library/wemos_d1_mini.pretty)(options "")(descr "")(disabled))
+  (version 7)
+  (lib (name "library")(type "KiCad")(uri "${KIPRJMOD}/library")(options "")(descr "")(disabled))
+  (lib (name "ESP32_mini")(type "KiCad")(uri "${KIPRJMOD}/library/ESP32_mini.pretty")(options "")(descr ""))
+  (lib (name "wemos_d1_mini")(type "KiCad")(uri "${KIPRJMOD}/library/wemos_d1_mini.pretty")(options "")(descr "")(disabled))
+  (lib (name "CN5711_module_footprint")(type "KiCad")(uri "${KIPRJMOD}/library/CN5711_module_footprint.pretty")(options "")(descr ""))
 )
